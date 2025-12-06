@@ -1,0 +1,57 @@
+# Xcode
+.DS_Store
+/build/
+/DerivedData/
+*.pbxuser
+*.mode1v3
+*.mode2v3
+*.perspectivev3
+xcuserdata/
+*.xcscmblueprint
+*.xccheckout
+*.moved-aside
+*.xcuserstate
+
+# Workspace
+*.xcworkspace
+
+# Xcode Archives
+*.xcarchive
+
+# Playgrounds
+timeline.xctimeline
+playground.xcworkspace
+
+# Swift Package Manager
+/.build/
+/.swiftpm/
+Package.resolved
+
+# CocoaPods
+/Pods/
+Podfile.lock
+
+# Carthage
+/Carthage/Build/
+
+# Fastlane
+fastlane/report.xml
+fastlane/Preview.html
+fastlane/screenshots
+fastlane/test_output
+
+# CocoaPods and Carthage generated frameworks
+*.framework
+*.xcframework
+
+# Secrets
+*.key
+*.pem
+*.p12
+
+# IDEs
+.idea/
+*.iml
+
+# macOS
+.DS_Store
