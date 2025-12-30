@@ -9,53 +9,30 @@ import SwiftUI
 import SwiftData
 
 struct ContentView: View {
+        @SceneStorage("selectedTab") private var selectedTabIndex = 0 // 利用 @SceneStorage 持久化标签选择状态[1,6](@ref)
+    @State private var searchText = ""
     @Environment(\.modelContext) private var modelContext
-    @Query private var items: [Item]
 
     var body: some View {
-        NavigationSplitView {
-            List {
-                ForEach(items) { item in
-                    NavigationLink {
-                        Text("Item at \(item.timestamp, format: Date.FormatStyle(date: .numeric, time: .standard))")
-                    } label: {
-                        Text(item.timestamp, format: Date.FormatStyle(date: .numeric, time: .standard))
-                    }
-                }
-                .onDelete(perform: deleteItems)
+        TabView(selection: $selectedTabIndex) {
+            Tab("装备", systemImage: "shippingbox", value: 0) {
+                HomeView()
             }
-            .toolbar {
-                ToolbarItem(placement: .navigationBarTrailing) {
-                    EditButton()
-                }
-                ToolbarItem {
-                    Button(action: addItem) {
-                        Label("Add Item", systemImage: "plus")
-                    }
-                }
-            }
-        } detail: {
-            Text("Select an item")
-        }
-    }
 
-    private func addItem() {
-        withAnimation {
-            let newItem = Item(timestamp: Date())
-            modelContext.insert(newItem)
-        }
-    }
+            Tab("设置", systemImage: "gearshape", value: 1) {
+                SettingsView()
+            }
 
-    private func deleteItems(offsets: IndexSet) {
-        withAnimation {
-            for index in offsets {
-                modelContext.delete(items[index])
+            Tab("搜索", systemImage: "magnifyingglass", value: 2, role: .search) {
+                SearchView(searchText: searchText)
             }
         }
+        .accentColor(Color(#colorLiteral(red: 0, green: 0.8, blue: 0.8, alpha: 1)))
+        .tabViewStyle(.automatic)
+        // .tabBarMinimizeBehavior(.never)
     }
 }
 
 #Preview {
     ContentView()
-        .modelContainer(for: Item.self, inMemory: true)
 }
