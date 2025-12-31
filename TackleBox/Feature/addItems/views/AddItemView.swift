@@ -80,11 +80,38 @@ struct AddItemView: View {
 
             Section(header: Text("分类")) {
                 Picker("分类", selection: $viewModel.category) {
-                    ForEach(viewModel.categories, id: \.self) { cat in
-                        Text(cat)
+                    ForEach(viewModel.categories, id: \.name) { cat in
+                        Text(cat.name)
                     }
                 }
                 .pickerStyle(.menu)
+            }
+
+            // Dynamic attributes for selected category
+            if let attrs = viewModel.selectedCategory?.attributes, !attrs.isEmpty {
+                Section(header: Text("属性")) {
+                    ForEach(attrs) { attr in
+                        switch attr.type {
+                        case .text:
+                            TextField(attr.label, text: binding(for: attr.key))
+                                .textFieldStyle(.roundedBorder)
+                        case .number:
+                            TextField(attr.label, text: binding(for: attr.key))
+                                .keyboardType(.decimalPad)
+                                .textFieldStyle(.roundedBorder)
+                        case .picker:
+                            if let options = attr.options {
+                                Picker(attr.label, selection: binding(for: attr.key)) {
+                                    ForEach(options, id: \.self) { o in Text(o) }
+                                }
+                                .pickerStyle(.menu)
+                            } else {
+                                TextField(attr.label, text: binding(for: attr.key))
+                                    .textFieldStyle(.roundedBorder)
+                            }
+                        }
+                    }
+                }
             }
 
             Section(header: Text("数量")) {
@@ -146,6 +173,14 @@ struct AddItemView: View {
         } else {
             // Could show an alert for validation failure
         }
+    }
+
+    private func binding(for key: String) -> Binding<String> {
+        Binding(get: {
+            viewModel.attributeValues[key] ?? ""
+        }, set: { new in
+            viewModel.attributeValues[key] = new
+        })
     }
 }
 

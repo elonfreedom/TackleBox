@@ -20,6 +20,8 @@ final class Item {
     var quantity: Int = 1
     var status: String = "在用"
     var notes: String? = nil
+    // JSON-encoded arbitrary attributes per category (e.g. length, diameter)
+    var attributesJSON: String? = nil
 
     init(id: UUID = UUID(), name: String, category: String? = nil, timestamp: Date = Date(), isEquipped: Bool = false) {
         self.id = id
