@@ -3,19 +3,19 @@ import SwiftUI
 
 struct HomeView: View {
   @Environment(\.modelContext) private var modelContext
-  @Query(sort: [SortDescriptor(\Item.timestamp, order: .reverse)]) private var items: [Item]
+  @Query(sort: [SortDescriptor(\Equipment.timestamp, order: .reverse)]) private var items: [Equipment]
   @StateObject private var viewModel = HomeViewModel()
   @State private var showingAddItem = false
   @State private var selectedCategoryIndex: Int = 0
   private let categories: [String] = {
     var cats = ["全部"]
-    cats.append(contentsOf: Category.all.map { $0.name })
+    cats.append(contentsOf: CategoryStore.shared.categories.map { $0.name })
     return cats
   }()
 
   init() {}
 
-  private var filteredItems: [Item] {
+  private var filteredItems: [Equipment] {
     if selectedCategoryIndex == 0 { return items }
     let selected = categories[selectedCategoryIndex]
     return items.filter { $0.category == selected }

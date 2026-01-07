@@ -3,7 +3,7 @@ import Combine
 import SwiftData
 
 final class HomeViewModel: ObservableObject {
-  func delete(at offsets: IndexSet, items: [Item], context: ModelContext) {
+  func delete(at offsets: IndexSet, items: [Equipment], context: ModelContext) {
     for index in offsets {
       let item = items[index]
       context.delete(item)
@@ -16,7 +16,7 @@ final class HomeViewModel: ObservableObject {
     }
   }
 
-  func toggleEquip(item: Item, context: ModelContext) {
+  func toggleEquip(item: Equipment, context: ModelContext) {
     item.isEquipped.toggle()
     do {
       try context.save()

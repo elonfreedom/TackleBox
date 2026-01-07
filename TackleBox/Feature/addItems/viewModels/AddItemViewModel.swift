@@ -4,7 +4,7 @@ import SwiftData
 
 final class AddItemViewModel: ObservableObject {
     @Published var name: String = ""
-    @Published var category: String = Category.all.first?.name ?? "" {
+    @Published var category: String = CategoryStore.shared.categories.first?.name ?? "" {
         didSet {
             // reset attribute values for newly selected category
             attributeValues = [:]
@@ -20,7 +20,7 @@ final class AddItemViewModel: ObservableObject {
     // attribute key -> string value (store as JSON in Item)
     @Published var attributeValues: [String: String] = [:]
 
-    let categories = Category.all
+    let categories = CategoryStore.shared.categories
     let statuses = ["在用", "闲置", "损坏"]
 
     var selectedCategory: Category? {
@@ -38,7 +38,7 @@ final class AddItemViewModel: ObservableObject {
         let trimmed = name.trimmingCharacters(in: .whitespacesAndNewlines)
         guard !trimmed.isEmpty else { return false }
 
-        let item = Item(name: trimmed, category: category)
+        let item = Equipment(name: trimmed, category: category)
         item.quantity = max(1, quantity)
         item.status = status
         item.notes = notes.isEmpty ? nil : notes

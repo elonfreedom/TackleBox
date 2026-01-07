@@ -12,6 +12,11 @@ import SwiftData
 struct TackleBoxApp: App {
     @StateObject private var modelManager = ModelManager()
 
+    init() {
+        // 在应用首次启动时创建预置分类
+        CategoryStore.shared.seedIfNeeded()
+    }
+
     var body: some Scene {
         WindowGroup {
             ContentView()
