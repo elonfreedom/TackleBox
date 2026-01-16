@@ -14,14 +14,19 @@ struct SettingsView: View {
           }
         }
       }
+      .background(Color.clear)
       .listStyle(.insetGrouped)
-      .navigationTitle("设置")
-      .navigationBarTitleDisplayMode(.large)
-      .alert("iCloud 未登录", isPresented: $viewModel.showICloudUnavailableAlert) {
-        Button("确定", role: .cancel) {}
-      } message: {
-        Text("请在设备设置中登录 iCloud 后再启用同步。")
-      }
+      .scrollContentBackground(.hidden)
+      .appBackgrounded()
+      .listRowBackground(Color.clear)
+    }
+    //    .appBackgrounded()
+    .navigationTitle("设置")
+    .navigationBarTitleDisplayMode(.large)
+    .alert("iCloud 未登录", isPresented: $viewModel.showICloudUnavailableAlert) {
+      Button("确定", role: .cancel) {}
+    } message: {
+      Text("请在设备设置中登录 iCloud 后再启用同步。")
     }
   }
 
@@ -46,14 +51,19 @@ struct SettingsView: View {
       }
 
     case .toggle:
-      let binding: Binding<Bool> = Binding(get: { item.toggleGet?() ?? false }, set: { newValue in
-        item.toggleSet?(newValue)
-      })
+      let binding: Binding<Bool> = Binding(
+        get: { item.toggleGet?() ?? false },
+        set: { newValue in
+          item.toggleSet?(newValue)
+        })
       return AnyView(ToggleRow(title: item.title, subtitle: item.subtitle, isOn: binding))
 
     case .plain:
       let trailingImage = item.trailingImageName.map { Image(systemName: $0) }
-      return AnyView(SettingRow(title: item.title, subtitle: item.subtitle, trailingText: item.trailingText, trailingImage: trailingImage))
+      return AnyView(
+        SettingRow(
+          title: item.title, subtitle: item.subtitle, trailingText: item.trailingText,
+          trailingImage: trailingImage))
     }
   }
 }
@@ -74,14 +84,14 @@ private struct SectionCard<Content: View>: View {
       Text(title)
         .font(.headline)
         .fontWeight(.bold)
-        .foregroundColor(.primary)
+        .foregroundColor(.primaryColor)
         .padding([.top, .horizontal])
 
       content
         .padding(.horizontal)
         .padding(.bottom)
     }
-    .background(Color(UIColor.secondarySystemBackground))
+    //    .background(Color.backgroundElevatedColor)
     .cornerRadius(14)
     .padding(.horizontal)
   }
@@ -92,17 +102,17 @@ private struct SettingRow: View {
   var subtitle: String? = nil
   var trailingText: String? = nil
   var trailingImage: Image? = nil
-//  var showChevron: Bool = true
+  //  var showChevron: Bool = true
 
   var body: some View {
     HStack(alignment: .top) {
       VStack(alignment: .leading, spacing: 4) {
         Text(title)
-          .foregroundColor(.primary)
+          .foregroundColor(.primaryColor)
         if let subtitle = subtitle {
           Text(subtitle)
             .font(.caption)
-            .foregroundColor(.secondary)
+            .foregroundColor(.secondaryColor)
         }
       }
 
@@ -110,20 +120,20 @@ private struct SettingRow: View {
 
       if let trailingText = trailingText {
         Text(trailingText)
-          .foregroundColor(.secondary)
+          .foregroundColor(.secondaryColor)
           .font(.subheadline)
       }
 
       if let trailingImage = trailingImage {
         trailingImage
-          .foregroundColor(.secondary)
+          .foregroundColor(.secondaryColor)
       }
 
-//      if showChevron {
-//        Image(systemName: "chevron.right")
-//          .foregroundColor(.secondary)
-//          .font(.caption)
-//      }
+      //      if showChevron {
+      //        Image(systemName: "chevron.right")
+      //          .foregroundColor(.secondary)
+      //          .font(.caption)
+      //      }
     }
     .padding(.vertical, 14)
   }
@@ -137,11 +147,11 @@ private struct ToggleRow: View {
   var body: some View {
     HStack {
       VStack(alignment: .leading, spacing: 4) {
-        Text(title).foregroundColor(.primary)
+        Text(title).foregroundColor(.primaryColor)
         if let subtitle = subtitle {
           Text(subtitle)
             .font(.caption)
-            .foregroundColor(.secondary)
+            .foregroundColor(.secondaryColor)
         }
       }
 

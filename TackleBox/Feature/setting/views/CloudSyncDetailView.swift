@@ -18,7 +18,7 @@ struct CloudSyncDetailView: View {
                     Text("CloudKit 状态")
                     Spacer()
                     Text(viewModel.useICloudSync ? "已启用":"未启用")
-                        .foregroundColor(.secondary)
+                        .foregroundColor(.secondaryColor)
                 }
 
 //                Button("刷新状态") {
@@ -26,6 +26,7 @@ struct CloudSyncDetailView: View {
 //                }
             }
         }
+              .appBackgrounded()
         .navigationTitle("iCloud 同步")
         .onAppear {
 //            viewModel.refreshCloudStatus()

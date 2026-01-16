@@ -9,7 +9,7 @@ import Foundation
 import SwiftData
 
 @Model
-final class Equipment {
+final class Equipment: Identifiable, Equatable, Hashable {
     // Provide default values at property declaration so the underlying
     // Core Data attributes have defaults (required for CloudKit integration).
     var id: UUID = UUID()
@@ -32,5 +32,13 @@ final class Equipment {
         self.timestamp = timestamp
         self.isEquipped = isEquipped
         self.thumbnail = thumbnail
+    }
+
+    static func == (lhs: Equipment, rhs: Equipment) -> Bool {
+        return lhs.id == rhs.id
+    }
+
+    func hash(into hasher: inout Hasher) {
+        hasher.combine(id)
     }
 }

@@ -6,8 +6,21 @@ struct ItemRow: View {
   let item: Equipment
   let viewModel: HomeViewModel
   let modelContext: ModelContext
+  let onTap: (() -> Void)?
 
   var body: some View {
+    Group {
+      rowContent
+        .contentShape(Rectangle())
+        .onTapGesture {
+          onTap?()
+        }
+        .modifier(AccessibilityButtonTrait(if: onTap != nil))
+    }
+  }
+
+  @ViewBuilder
+  private var rowContent: some View {
     HStack {
       // Leading image: equipment image if model thumbnail exists,
       // otherwise fall back to the category default SF Symbol.
@@ -17,53 +30,37 @@ struct ItemRow: View {
         Image(decorative: cg, scale: 1.0)
           .resizable()
           .scaledToFill()
-          .frame(width: 44, height: 44)
-          .background(Color(.tertiarySystemFill))
+          .frame(width: 60, height: 60)
+          .background(Color.surfaceColor)
           .clipShape(RoundedRectangle(cornerRadius: 6))
-          .overlay(RoundedRectangle(cornerRadius: 6).stroke(Color(.separator), lineWidth: 0.5))
-                    .padding()
+          .padding()
 
       } else {
         Image(systemName: categoryIcon)
           .resizable()
           .scaledToFit()
-          .frame(width: 44, height: 44)
+          .frame(width: 60, height: 60)
           .foregroundColor(.accentColor)
-          .background(Color(.tertiarySystemFill))
+          .background(Color.surfaceColor)
           .clipShape(RoundedRectangle(cornerRadius: 6))
-          .overlay(RoundedRectangle(cornerRadius: 6).stroke(Color(.separator), lineWidth: 0.5))
           .padding()
       }
-
       VStack(alignment: .leading) {
         Text(item.name)
           .font(.title3)
           .fontWeight(.semibold)
-
-        HStack {
-          // Text("×\(item.quantity)")
-          //   .font(.subheadline)
-            // .foregroundColor(.clear)
-
-          Text(item.status)
-            .font(.caption)
-            .foregroundColor(.white)
-            .padding(.horizontal, 10)
-            .padding(.vertical, 6)
-            .background(statusColor(for: item.status))
-            .clipShape(Capsule())
-        }
       }
-
       Spacer()
-
-      Image(systemName: "chevron.right")
-        .foregroundColor(.secondary)
     }
     .padding()
-    .frame(height: 80)
-    .background(Color(.secondarySystemBackground))
-    .cornerRadius(8)
+    .background(
+      RoundedRectangle(cornerRadius: 12, style: .circular)
+        .fill(Color.backgroundElevatedColor)
+    )
+    .accessibilityElement(children: .combine)
+    .accessibilityLabel(item.name)
+    .accessibilityValue(String(format: "数量 %d, 状态 %@, 分类 %@", item.quantity, item.status as CVarArg, (item.category ?? "未分类") as CVarArg))
+    .accessibilityIdentifier("ItemRow_\(item.id.uuidString)")
   }
 
   
@@ -82,7 +79,19 @@ struct ItemRow: View {
     case "损坏":
       return Color(red: 0.53, green: 0.16, blue: 0.18)
     default:
-      return Color.gray
+      return Color.disabledColor
+    }
+  }
+}
+
+// Helper modifier to conditionally add the .isButton accessibility trait
+fileprivate struct AccessibilityButtonTrait: ViewModifier {
+  let `if`: Bool
+  func body(content: Content) -> some View {
+    if `if` {
+      content.accessibilityAddTraits(.isButton)
+    } else {
+      content
     }
   }
 }

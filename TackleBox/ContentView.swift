@@ -27,7 +27,7 @@ struct ContentView: View {
                 SearchView(searchText: searchText)
             }
         }
-        .accentColor(Color(#colorLiteral(red: 0, green: 0.8, blue: 0.8, alpha: 1)))
+        .accentColor(.primaryColor)
         .tabViewStyle(.automatic)
         // .tabBarMinimizeBehavior(.never)
     }

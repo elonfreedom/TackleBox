@@ -34,35 +34,64 @@ final class AddItemViewModel: ObservableObject {
         }
     }
 
-    func save(context: ModelContext) -> Bool {
+    func save(context: ModelContext, existing: Equipment? = nil) -> Bool {
         let trimmed = name.trimmingCharacters(in: .whitespacesAndNewlines)
         guard !trimmed.isEmpty else { return false }
+        // If updating an existing item, mutate its properties; otherwise create+insert
+        if let existing = existing {
+            existing.name = trimmed
+            existing.category = category
+            existing.quantity = max(1, quantity)
+            existing.status = status
+            existing.notes = notes.isEmpty ? nil : notes
 
-        let item = Equipment(name: trimmed, category: category)
-        item.quantity = max(1, quantity)
-        item.status = status
-        item.notes = notes.isEmpty ? nil : notes
-
-        // encode attributeValues as JSON (simplified to avoid complex single expression)
-        if !attributeValues.isEmpty {
-            let encoder = JSONEncoder()
-            do {
-                let data = try encoder.encode(attributeValues)
-                if let json = String(data: data, encoding: .utf8) {
-                    item.attributesJSON = json
+            if !attributeValues.isEmpty {
+                let encoder = JSONEncoder()
+                do {
+                    let data = try encoder.encode(attributeValues)
+                    if let json = String(data: data, encoding: .utf8) {
+                        existing.attributesJSON = json
+                    }
+                } catch {
+                    print("Attribute JSON encode error: \(error)")
                 }
-            } catch {
-                print("Attribute JSON encode error: \(error)")
+            } else {
+                existing.attributesJSON = nil
             }
-        }
 
-        context.insert(item)
-        do {
-            try context.save()
-            return true
-        } catch {
-            print("AddItem save error: \(error)")
-            return false
+            do {
+                try context.save()
+                return true
+            } catch {
+                print("Update save error: \(error)")
+                return false
+            }
+        } else {
+            let item = Equipment(name: trimmed, category: category)
+            item.quantity = max(1, quantity)
+            item.status = status
+            item.notes = notes.isEmpty ? nil : notes
+
+            if !attributeValues.isEmpty {
+                let encoder = JSONEncoder()
+                do {
+                    let data = try encoder.encode(attributeValues)
+                    if let json = String(data: data, encoding: .utf8) {
+                        item.attributesJSON = json
+                    }
+                } catch {
+                    print("Attribute JSON encode error: \(error)")
+                }
+            }
+
+            context.insert(item)
+            do {
+                try context.save()
+                return true
+            } catch {
+                print("AddItem save error: \(error)")
+                return false
+            }
         }
     }
 }

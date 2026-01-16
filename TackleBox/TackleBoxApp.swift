@@ -21,6 +21,8 @@ struct TackleBoxApp: App {
         WindowGroup {
             ContentView()
                 .environmentObject(modelManager)
+                .appBackground(.backgroundColor)
+                .appBackgrounded()
         }
         .modelContainer(modelManager.container)
     }

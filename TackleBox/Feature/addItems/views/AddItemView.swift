@@ -1,6 +1,23 @@
 import SwiftUI
 import SwiftData
 
+private extension View {
+    func inputStyle() -> some View {
+        self
+            .padding(12)
+            .background(Color.surfaceColor)
+            .cornerRadius(12)
+            .foregroundColor(.white)
+    }
+
+    func sectionHeaderStyle() -> some View {
+        self
+            .font(.headline)
+            .foregroundColor(.white)
+            .padding(.top, 6)
+    }
+}
+
 private struct RepeatButton: View {
     let systemName: String
     let action: () -> Void
@@ -19,9 +36,9 @@ private struct RepeatButton: View {
             }
             action()
         }) {
-            Image(systemName: systemName)
+                Image(systemName: systemName)
                 .frame(width: 36, height: 36)
-                .background(Color(.systemGray5))
+                .background(Color.surfaceColor)
                 .cornerRadius(8)
         }
         .buttonStyle(.plain)
@@ -67,24 +84,31 @@ private struct RepeatButton: View {
 }
 
 struct AddItemView: View {
+    var editingItem: Equipment? = nil
+
     @Environment(\.modelContext) private var modelContext
     @Environment(\.dismiss) private var dismiss
     @StateObject private var viewModel = AddItemViewModel()
+    @State private var didPopulateFromEditing = false
 
     var body: some View {
         Form {
-            Section(header: Text("名称")) {
+            Section(header: Text("名称").sectionHeaderStyle()) {
                 TextField("例如：路亚竿", text: $viewModel.name)
-                    .textFieldStyle(.plain)
+                    .inputStyle()
             }
 
-            Section(header: Text("分类")) {
+            Section(header: Text("分类").sectionHeaderStyle()) {
                 Picker("分类", selection: $viewModel.category) {
                     ForEach(viewModel.categories, id: \.name) { cat in
                         Text(cat.name)
                     }
                 }
                 .pickerStyle(.menu)
+                .padding(.vertical, 6)
+                .padding(.horizontal, 8)
+                .background(Color.surfaceColor)
+                .cornerRadius(12)
             }
 
             // Dynamic attributes for selected category
@@ -94,11 +118,11 @@ struct AddItemView: View {
                         switch attr.type {
                         case .text:
                             TextField(attr.label, text: binding(for: attr.key))
-                                .textFieldStyle(.roundedBorder)
+                                .inputStyle()
                         case .number:
                             TextField(attr.label, text: binding(for: attr.key))
                                 .keyboardType(.decimalPad)
-                                .textFieldStyle(.roundedBorder)
+                                .inputStyle()
                         case .picker:
                             if let options = attr.options {
                                 Picker(attr.label, selection: binding(for: attr.key)) {
@@ -107,14 +131,14 @@ struct AddItemView: View {
                                 .pickerStyle(.menu)
                             } else {
                                 TextField(attr.label, text: binding(for: attr.key))
-                                    .textFieldStyle(.roundedBorder)
+                                    .inputStyle()
                             }
                         }
                     }
                 }
             }
 
-            Section(header: Text("数量")) {
+            Section(header: Text("数量").sectionHeaderStyle()) {
                 HStack {
                     RepeatButton(systemName: "minus") {
                         if viewModel.quantity > 1 { viewModel.quantity -= 1 }
@@ -132,7 +156,7 @@ struct AddItemView: View {
                 .padding(.vertical, 4)
             }
 
-            Section(header: Text("状态")) {
+            Section(header: Text("状态").sectionHeaderStyle()) {
                 Picker("状态", selection: $viewModel.status) {
                     ForEach(viewModel.statuses, id: \.self) { s in
                         Text(s)
@@ -142,20 +166,26 @@ struct AddItemView: View {
                 .padding(.vertical,4)
             }
 
-            Section(header: Text("备注")) {
+            Section(header: Text("备注").sectionHeaderStyle()) {
                 TextEditor(text: $viewModel.notes)
                     .frame(minHeight: 50)
+                    .inputStyle()
             }
 
             Section {
-                HStack {
+                HStack(alignment: .top, spacing: 8) {
                     Image(systemName: "info.circle")
+                        .foregroundColor(.white)
                     Text("数据将离线保存，并在联网时自动同步到 CloudKit。")
                         .font(.footnote)
-                        .foregroundColor(.secondary)
+                        .foregroundColor(.secondaryColor)
                 }
+                .padding(8)
+                .background(Color.clear)
             }
         }
+        .scrollContentBackground(.hidden)
+        .background(Color.clear)
         .navigationTitle("添加装备")
         .toolbar {
             ToolbarItem(placement: .navigationBarTrailing) {
@@ -164,11 +194,33 @@ struct AddItemView: View {
                 }
             }
         }
+        .appBackgrounded()
+        .onAppear {
+            guard !didPopulateFromEditing, let e = editingItem else { return }
+            // populate viewModel from existing Equipment for edit
+            viewModel.name = e.name
+            viewModel.category = e.category ?? viewModel.category
+            viewModel.quantity = e.quantity
+            viewModel.status = e.status
+            viewModel.notes = e.notes ?? ""
+
+            if let json = e.attributesJSON, let data = json.data(using: .utf8) {
+                do {
+                    let decoder = JSONDecoder()
+                    let dict = try decoder.decode([String: String].self, from: data)
+                    // overwrite attributeValues (preserve keys initialized by category)
+                    for (k, v) in dict { viewModel.attributeValues[k] = v }
+                } catch {
+                    // ignore parse errors
+                }
+            }
+
+            didPopulateFromEditing = true
+        }
     }
 
     private func save() {
-//        let context = modelContext
-        if viewModel.save(context: modelContext) {
+        if viewModel.save(context: modelContext, existing: editingItem) {
             dismiss()
         } else {
             // Could show an alert for validation failure

@@ -25,17 +25,17 @@ struct SearchView: View {
                         VStack(spacing: 8) {
                             Spacer()
                             Text("输入关键词以搜索装备")
-                                .foregroundColor(.secondary)
+                                .foregroundColor(.secondaryColor)
                             Text("支持按名称或分类搜索")
                                 .font(.footnote)
-                                .foregroundColor(.secondary)
+                                .foregroundColor(.secondaryColor)
                             Spacer()
                         }
                     } else {
                         VStack {
                             Spacer()
                             Text("未找到匹配项")
-                                .foregroundColor(.secondary)
+                                .foregroundColor(.secondaryColor)
                             Spacer()
                         }
                     }
@@ -49,7 +49,7 @@ struct SearchView: View {
                                     if let cat = item.category {
                                         Text(cat)
                                             .font(.caption)
-                                            .foregroundColor(.secondary)
+                                            .foregroundColor(.secondaryColor)
                                     }
                                 }
                                 Spacer()
@@ -62,13 +62,17 @@ struct SearchView: View {
                         }
                     }
                     .listStyle(.insetGrouped)
+                    .scrollContentBackground(.hidden)
+                    .background(Color.clear)
                 }
             }
             .navigationTitle("搜索")
             .searchable(text: $viewModel.query, placement: .navigationBarDrawer(displayMode: .always), prompt: "搜索装备或类别")
             .disableAutocorrection(true)
             .onAppear { viewModel.attach(modelContext: modelContext) }
+            .appBackgrounded()
         }
+        
     }
 }
 

@@ -32,6 +32,28 @@ final class TackleBoxUITests: XCTestCase {
     }
 
     @MainActor
+    func testOpenFirstItemDetailIfExists() throws {
+        let app = XCUIApplication()
+        app.launch()
+
+        let firstCell = app.cells.element(boundBy: 0)
+        // If there are no items, skip this test to avoid flaky failures in CI where no data exists.
+        if !firstCell.waitForExistence(timeout: 3) {
+            throw XCTSkip("No list items available to open detail")
+        }
+
+        firstCell.tap()
+
+        // Expect a navigation title or label indicating the detail screen
+        let navTitle = app.staticTexts["装备详情"]
+        XCTAssertTrue(navTitle.waitForExistence(timeout: 2) || app.navigationBars["装备详情"].exists)
+
+        // Expect some text that contains the word "数量" on the detail screen
+        let qtyLabel = app.staticTexts.matching(NSPredicate(format: "label CONTAINS %@", "数量")).firstMatch
+        XCTAssertTrue(qtyLabel.waitForExistence(timeout: 2))
+    }
+
+    @MainActor
     func testLaunchPerformance() throws {
         // This measures how long it takes to launch your application.
         measure(metrics: [XCTApplicationLaunchMetric()]) {
